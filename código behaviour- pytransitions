@@ -1,0 +1,31 @@
+from transitions import Machine #importa a biblioteca de transicao
+
+class Universitario: #define uma classe vazia
+    pass
+
+# oq pode acontecer
+moods = ['estudando', 'no_bar', 'dormindo']
+
+# Definindo as transicoes
+transicoes = [
+    {'trigger': 'ir_para_bar', 'source': 'estudando', 'dest': 'no_bar', 'conditions': 'dia_da_semana'},
+    {'trigger': 'ir_dormir', 'source': 'estudando', 'dest': 'dormindo', 'conditions': 'prova'},
+    {'trigger': 'estudar', 'source': ['no_bar', 'dormindo'], 'dest': 'estudando'},
+    {'trigger': 'relaxar', 'source': ['estudando', 'no_bar'], 'dest': 'dormindo'}
+]
+
+# maquina de opcoes
+maquina_universitario = Machine(model=Universitario, states=moods, transitions=transicoes, initial='estudando')
+
+# Definindo as condicoes
+def dia_da_semana(universitario): # verifica q dia da semana
+    # Supondo que o universitario vai ao bar de segunda a sexta
+    return universitario.dia_da_semana in ['segunda', 'terca', 'quarta', 'quinta', 'sexta']
+
+def prova_no_dia_seguinte(universitario): #verifica se tem prova no dia seguinte
+    # Supondo que o universitario so relaxa se nao tiver prova no dia seguinte
+    return not universitario.prova_no_dia_seguinte
+
+# Adicionando as condições à máquina
+maquina_universitario.add_condition('dia_da_semana', dia_da_semana)
+maquina_universitario.add_condition('prova_no_dia_seguinte', prova_no_dia_seguinte)
