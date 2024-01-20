@@ -1,0 +1,44 @@
+import cv2
+import numpy as np
+
+# Inicializando a captura de vídeo
+cap = cv2.VideoCapture(0) #no caso não é um vídeo e sim várias fotos
+
+substituicao = False  # para fazer a substituição
+
+while True:
+    # Capturando o quadro da câmera
+    ret, frame = cap.read()
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)  # aqui convertemos BGS para HSV pois é melhor para trabalhar com cores
+
+    # Definindo a faixa de cor azul na escala HSV
+    lower_blue = np.array([100, 50, 50])  # mínimo
+    upper_blue = np.array([130, 255, 255])  # máximo
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)  # máscara
+
+    # Criando uma cópia da imagem original
+    luz_azul = frame.copy()
+
+    # Substituindo a cor azul por azul na cópia
+    luz_azul[np.where(mask != 0)] = [255, 0, 0] 
+
+
+    if substituicao:
+        # Substituindo a cor azul por vermelho na imagem original
+        frame[np.where(mask != 0)] = [0, 0, 255]
+
+    cv2.imshow('luz azul', luz_azul)
+    cv2.imshow('Blue to Red', frame)
+
+    # Verificando eventos de teclado
+    key = cv2.waitKey(1) & 0xFF
+
+    if key == 13:  # Verifica se a tecla Enter foi pressionada para alternar a substituição
+        substituicao = not substituicao
+
+    elif key == 27:  # Verifica se a tecla Esc foi pressionada para sair do loop
+        break
+
+# Liberando os recursos
+cap.release()
+cv2.destroyAllWindows()
